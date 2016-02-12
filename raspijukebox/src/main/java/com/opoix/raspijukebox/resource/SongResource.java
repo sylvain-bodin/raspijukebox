@@ -50,7 +50,7 @@ public class SongResource {
         Song song = songRepository.findById(params.getLong("songId"));
         try {
             Boolean repeat = params.getBoolean("repeat", true);
-            Player.getInstance().playAll(Collections.singletonList(song), repeat);
+            Player.getInstance().playAll(Collections.singletonList(song));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -62,11 +62,22 @@ public class SongResource {
         os.close();
     }
 
-    public void playAll(HttpExchange httpExchange) {
-        HttpParams params = resUtils.getParams(httpExchange);
+    public void playAll(HttpExchange exchange) throws IOException {
+        HttpParams params = resUtils.getParams(exchange);
         Boolean repeat = params.getBoolean("repeat", true);
         Random rand = new Random();
-        Player.getInstance().playAll(songRepository.findAll().stream().sorted((song1, song2) -> rand.nextInt()).collect(Collectors.toList()), repeat);
+        List<Song> songList = songRepository.findAll().stream().sorted((song1, song2) -> rand.nextInt()).collect(Collectors.toList());
+        Player.getInstance().playAll(songList);
+        StringBuilder responseSb = new StringBuilder();
+        songList.forEach((song) -> {
+            responseSb.append(String.format("%s - %s%n", song.getArtist(), song.getTitle()));
+        });
+        String response = responseSb.toString();
+        exchange.sendResponseHeaders(200, 0);
+        OutputStream os = exchange.getResponseBody();
+        Writer writer = new PrintWriter(os);
+        writer.write(response);
+        writer.close();
     }
 
     public void htmlList(HttpExchange exchange) throws IOException {

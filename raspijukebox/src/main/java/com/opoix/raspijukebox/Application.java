@@ -21,6 +21,7 @@ public class Application {
     public static HttpServer startServer() throws IOException  {
         HttpServer server = HttpServer.create(new InetSocketAddress(5555), 0);
         SongResource songRes = SongResource.getInstance();
+        server.createContext("/playAll", exchange -> songRes.playAll(exchange));
         server.createContext("/play", exchange -> songRes.play(exchange));
         server.createContext("/scan", exchange -> songRes.scan(exchange));
         server.createContext("/list", exchange -> songRes.htmlList(exchange));

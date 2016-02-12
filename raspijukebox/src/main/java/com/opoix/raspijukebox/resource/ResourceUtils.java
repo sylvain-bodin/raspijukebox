@@ -27,7 +27,9 @@ public class ResourceUtils {
     }
 
     public Map<String, List<String>> parse(final String query) {
-
+        if (query == null) {
+            return new HashMap<>(0);
+        }
         Stream<String> params = Arrays.asList(query.split("&")).stream();
         BinaryOperator<List<String>> mergeLists = (l1, l2) -> Lists.newLinkedList(Iterables.concat(l1, l2));
         BiFunction<String[], Integer, String> getAt = (array, index) -> index >= array.length ? null : array[index];
