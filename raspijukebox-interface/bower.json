@@ -1,0 +1,17 @@
+{
+  "name": "micro-juke-box",
+  "description": "Front end for a micro juke box app",
+  "version": "0.0.1",
+  "homepage": "https://github.com/sylvain-bodin/micro-juke-box",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "angular": "~1.4.0",
+    "angular-route": "~1.4.0",
+    "angular-loader": "~1.4.0",
+    "angular-mocks": "~1.4.0",
+    "angular-materialize": "~0.1.2",
+    "angular-resource": "~1.4.9",
+    "font-awesome": "fontawesome#^4.5.0"
+  }
+}

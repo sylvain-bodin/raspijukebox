@@ -1,0 +1,16 @@
+<div class="container">
+    <nav>
+        <div class="nav-wrapper">
+            <ul class="right">
+                <li><a ng-click="playAll()" title="Play All"><i class="fa fa-play-circle"></i></a></li>
+                <li><a ng-click="stop()" title="Stop"><i class="fa fa-stop"></i></a></li>
+            </ul>
+        </div>
+    </nav>
+    <ul class="collection">
+        <li class="collection-item" ng-repeat="song in songs">
+            <div>{{song.artist}} - {{song.title}}<a ng-click="play(song.id)" class="secondary-content" title="Play"><i
+                    class="fa fa-play"></i></a></div>
+        </li>
+    </ul>
+</div>
