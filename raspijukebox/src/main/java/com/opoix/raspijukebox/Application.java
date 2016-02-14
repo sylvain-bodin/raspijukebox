@@ -26,6 +26,7 @@ public class Application {
         server.createContext("/scan", exchange -> songRes.scan(exchange));
         server.createContext("/list", exchange -> songRes.htmlList(exchange));
         server.createContext("/stop", exchange -> songRes.stop(exchange));
+        server.createContext("/jsonList", exchange -> songRes.jsonList(exchange));
 
         //server.createContext("/get", new GetHandler());
         server.setExecutor(null); // creates a default executor

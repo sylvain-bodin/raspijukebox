@@ -1,21 +1,16 @@
 package com.opoix.raspijukebox.resource;
 
+import com.google.gson.Gson;
 import com.opoix.raspijukebox.Player;
-import com.opoix.raspijukebox.config.ConfigurationManager;
 import com.opoix.raspijukebox.entity.Song;
 import com.opoix.raspijukebox.repository.SongRepository;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.*;
-import java.net.URLDecoder;
-import java.nio.file.Files;
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.function.Predicate;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public class SongResource {
@@ -35,6 +30,7 @@ public class SongResource {
     public void scan(HttpExchange exchange) throws IOException {
         songRepository.scan();
         String response = "Scan complete.";
+        allowCROS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
@@ -56,6 +52,7 @@ public class SongResource {
         }
 
         String response = "Playing " + song.getArtist() + " - " + song.getTitle() + "...";
+        allowCROS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
@@ -73,6 +70,7 @@ public class SongResource {
             responseSb.append(String.format("%s - %s%n", song.getArtist(), song.getTitle()));
         });
         String response = responseSb.toString();
+        allowCROS(exchange);
         exchange.sendResponseHeaders(200, 0);
         OutputStream os = exchange.getResponseBody();
         Writer writer = new PrintWriter(os);
@@ -97,12 +95,40 @@ public class SongResource {
         os.close();
     }
 
+    /**
+     * Return the list of the songs in a JSON format
+     * @param exchange the HttpExchange form the service
+     * @throws IOException
+     */
+    public void jsonList(HttpExchange exchange) throws IOException {
+        allowCROS(exchange);
+        exchange.sendResponseHeaders(200, 0);
+        OutputStream os = exchange.getResponseBody();
+        Writer writer = new BufferedWriter(new OutputStreamWriter(os));
+        Gson gson = new Gson();
+        writer.write(gson.toJson(songRepository.findAll()));
+        writer.flush();
+        os.close();
+    }
+
     public void stop(HttpExchange exchange) throws IOException {
         Player.getInstance().stop();
         String response = "Stopped.";
+        allowCROS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
         os.close();
+    }
+
+    /**
+     * Modify the header to allow services CrossDomain on GET.
+     * @param exchange the HttpExchange form the service.
+     */
+    private void allowCROS(HttpExchange exchange){
+        exchange.getResponseHeaders().add("Access-Control-Allow-Origin","*");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Methods"," GET");
+        exchange.getResponseHeaders().add("Access-Control-Max-Age","151200");
+        exchange.getResponseHeaders().add("Access-Control-Allow-Headers","x-requested-with,Content-Type");
     }
 }
