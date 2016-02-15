@@ -30,7 +30,7 @@ public class SongResource {
     public void scan(HttpExchange exchange) throws IOException {
         songRepository.scan();
         String response = "Scan complete.";
-        allowCROS(exchange);
+        allowCORS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
@@ -52,7 +52,7 @@ public class SongResource {
         }
 
         String response = "Playing " + song.getArtist() + " - " + song.getTitle() + "...";
-        allowCROS(exchange);
+        allowCORS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
@@ -70,7 +70,7 @@ public class SongResource {
             responseSb.append(String.format("%s - %s%n", song.getArtist(), song.getTitle()));
         });
         String response = responseSb.toString();
-        allowCROS(exchange);
+        allowCORS(exchange);
         exchange.sendResponseHeaders(200, 0);
         OutputStream os = exchange.getResponseBody();
         Writer writer = new PrintWriter(os);
@@ -101,7 +101,7 @@ public class SongResource {
      * @throws IOException
      */
     public void jsonList(HttpExchange exchange) throws IOException {
-        allowCROS(exchange);
+        allowCORS(exchange);
         exchange.sendResponseHeaders(200, 0);
         OutputStream os = exchange.getResponseBody();
         Writer writer = new BufferedWriter(new OutputStreamWriter(os));
@@ -114,7 +114,7 @@ public class SongResource {
     public void stop(HttpExchange exchange) throws IOException {
         Player.getInstance().stop();
         String response = "Stopped.";
-        allowCROS(exchange);
+        allowCORS(exchange);
         exchange.sendResponseHeaders(200, response.length());
         OutputStream os = exchange.getResponseBody();
         os.write(response.getBytes());
@@ -125,7 +125,7 @@ public class SongResource {
      * Modify the header to allow services CrossDomain on GET.
      * @param exchange the HttpExchange form the service.
      */
-    private void allowCROS(HttpExchange exchange){
+    private void allowCORS(HttpExchange exchange){
         exchange.getResponseHeaders().add("Access-Control-Allow-Origin","*");
         exchange.getResponseHeaders().add("Access-Control-Allow-Methods"," GET");
         exchange.getResponseHeaders().add("Access-Control-Max-Age","151200");
