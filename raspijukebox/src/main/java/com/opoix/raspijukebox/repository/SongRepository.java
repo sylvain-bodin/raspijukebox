@@ -2,13 +2,13 @@ package com.opoix.raspijukebox.repository;
 
 import com.opoix.raspijukebox.config.ConfigurationManager;
 import com.opoix.raspijukebox.entity.Song;
-import com.opoix.raspijukebox.exception.NotImplementedException;
 import javazoom.spi.mpeg.sampled.file.MpegAudioFileReader;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -23,12 +23,10 @@ import java.util.function.Predicate;
  */
 public class SongRepository {
 
-    private static SongRepository instance = new SongRepository();
-    private static ConfigurationManager config = ConfigurationManager.getInstance();
     public static final Predicate<Path> MP3_FILENAME_FILTER =
             p -> p.getFileName().toString().endsWith(".mp3");
-
-
+    private static SongRepository instance = new SongRepository();
+    private static ConfigurationManager config = ConfigurationManager.getInstance();
     private Map<Long, Song> repository = new ConcurrentHashMap<>();
     private AtomicLong generator = new AtomicLong(0);
     private Object lock = new Object();
@@ -41,8 +39,14 @@ public class SongRepository {
     public void scan() {
         synchronized (lock) {
             truncate();
+            String songsDir = config.getProperty("song.path");
+            Boolean recursive = Boolean.valueOf(config.getProperty("song.recursive.scan"));
+            Integer depth = 1;
+            if (recursive) {
+                depth = Integer.MAX_VALUE;
+            }
             try {
-                Files.list(new File(config.getProperty("song.path")).toPath()).filter(MP3_FILENAME_FILTER).forEach(path -> {
+                Files.walk(new File(songsDir).toPath(), depth, FileVisitOption.FOLLOW_LINKS).filter(MP3_FILENAME_FILTER).forEach(path -> {
                     AudioFileFormat baseFileFormat = null;
                     try {
                         baseFileFormat = new MpegAudioFileReader().getAudioFileFormat(path.toFile());
@@ -62,6 +66,7 @@ public class SongRepository {
             }
         }
     }
+
     public Song findById(long songId) {
         for (Map.Entry<Long, Song> entry : repository.entrySet()) {
             if (entry.getKey() == songId) {
