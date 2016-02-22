@@ -12,5 +12,9 @@ public class Song {
     private Long id;
     private String artist;
     private String title;
+    private String album;
+    private Integer trackNumber;
+    private Integer discNumber;
+    private Long duration;
     private String path;
 }
